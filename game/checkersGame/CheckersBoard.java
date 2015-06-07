@@ -57,10 +57,16 @@ public class CheckersBoard implements Board{
     }
     
     public CheckersBoard(CheckersBoard cb){
-        checkers = new Checker[size][size];
+        checkers = new Checker[cb.size][cb.size];
         this.jf = cb.jf;
-        factor = 0.8f;
-        activated = cb.activated;
+        factor = cb.factor;
+        if(cb.activated == null)
+            activated = null;
+        else{
+            activated = new byte[2];
+            activated[0] = cb.activated[0];
+            activated[1] = cb.activated[1];
+        }
         activationPossibilities = cb.activationPossibilities;
         possibilities = cb.possibilities;
         for(byte i = 0; i < cb.size; i++){
@@ -106,6 +112,9 @@ public class CheckersBoard implements Board{
                 }
             }
         }
+        possibilities = null;
+        activationPossibilities = null;
+        activated = null;
         return cmsal;
     }
     

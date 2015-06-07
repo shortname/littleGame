@@ -51,7 +51,7 @@ public class CheckersGame implements Game{
         activated = false;
         if(players[cPlayer].controller() != null){
             byte acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
-            board = players[cPlayer].controller().move();
+            board = players[cPlayer].controller().move(board);
             cPlayer = acPlayer;
         }
         board.check(players[cPlayer]);
@@ -90,6 +90,7 @@ public class CheckersGame implements Game{
                 System.err.println(exc);
                 return null;
             }
+            System.err.println(captured);
             activated = false;
             checkersOnBoard[acPlayer] -= captured;
             if(checkersOnBoard[acPlayer] == 0){
@@ -97,7 +98,7 @@ public class CheckersGame implements Game{
             }else{
                 cPlayer = acPlayer;
                 if(players[cPlayer].controller() != null){
-                    board = players[cPlayer].controller().move();
+                    board = players[cPlayer].controller().move(board);
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
                     cPlayer = acPlayer;
                 }

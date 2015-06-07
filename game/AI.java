@@ -10,5 +10,5 @@ package game;
  * @author JWMD
  */
 public interface AI {
-    public Board move();
+    public Board move(Board start);
 }

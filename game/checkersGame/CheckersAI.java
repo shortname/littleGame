@@ -10,12 +10,9 @@ import game.Board;
 import game.Player;
 import game.exceptions.CheckerNotFoundException;
 import game.exceptions.DisactivatedException;
-import game.exceptions.ElementNotFoundException;
 import game.exceptions.WrongMoveException;
 import game.useful.Tree;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -29,7 +26,7 @@ public class CheckersAI implements AI{
     private Tree<MoveState> tree;
     private Tree<MoveState>.Element root;
     private Board result;
-    private final byte maxDepth = 2;
+    private final byte maxDepth = 3;
     
     public CheckersAI(Board board, Player player, Player opponent){
         this.board = board;
@@ -54,8 +51,6 @@ public class CheckersAI implements AI{
     private void simulate(Tree<MoveState>.Element ancestor, byte depth, Player pPlayer){
         if(result != null) return;
         if(depth == 0){
-            /*System.err.println(tree);
-            return root.value().board;*/
             postOrder(root, true);
             for(Tree<MoveState>.Element e : root.kids()){
                 if(e.value().value == root.value().value){
@@ -73,13 +68,13 @@ public class CheckersAI implements AI{
                 Player ppl = pPlayer == player ? opponent : player;
                 simulate(mse, --depth, ppl);
             }
-            System.err.println();
         }catch(CheckerNotFoundException | WrongMoveException | DisactivatedException exc){
             System.err.println(exc);
         }
     }
     
-    public Board move(){
+    public Board move(Board start){
+        board = start;
         tree = new Tree<>(new MoveState( (byte) 0, new CheckersBoard((CheckersBoard) board)));
         root = tree.root();
         result = null;
