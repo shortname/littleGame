@@ -11,10 +11,16 @@ package game.checkersGame;
  */
 public class MoveState {
     public Byte value;
-        public CheckersBoard board;
-    
-        public MoveState(Byte t, CheckersBoard u){
-            this.value = t;
-            this.board = u;
-        }
+    public Byte ownValue;
+    public CheckersBoard board;
+
+    public MoveState(Byte value, CheckersBoard board){
+        this.value = value;
+        this.ownValue = value;
+        this.board = board;
+    }
+        
+    public String toString(){
+        return "" + value; 
+    }    
 }

@@ -53,7 +53,11 @@ public class CheckersBoard implements Board{
                 }
             }
         }
-        //put(new Man(player2, jf), (byte) 4, (byte) 3);
+        /*put(new Man(player2, jf), (byte) 4, (byte) 3);
+        put(new Man(player1, jf), (byte) 0, (byte) 1);
+        put(new Man(player1, jf), (byte) 5, (byte) 6);
+        put(new Man(player1, jf), (byte) 5, (byte) 4);
+        put(new Man(player1, jf), (byte) 3, (byte) 2);*/
     }
     
     public CheckersBoard(CheckersBoard cb){
@@ -77,13 +81,16 @@ public class CheckersBoard implements Board{
     }
     
     private void multipleSimulation(ArrayList<MoveState> cmsal, byte fResult) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
+        byte ks = 0;
         for(Possibility pos : possibilities){
                 CheckersBoard copy = new CheckersBoard(this);
                 try{
-                    copy.move(pos.value);
+                    ks = copy.move(pos.value);
                 }catch(MultipleMoveException exc){
                     copy.multipleSimulation(cmsal, ++fResult);
                 }
+                if(ks < 0)
+                    fResult += CheckersAI.kingsBonus;
                 MoveState cms = new MoveState(++fResult, copy);
                 cmsal.add(cms);
             }
@@ -107,6 +114,8 @@ public class CheckersBoard implements Board{
                     added = true;
                 }
                 if(!added){
+                    if(result < 0)
+                        result = (byte) (-result+CheckersAI.kingsBonus);
                     MoveState cms = new MoveState(result, copy);
                     cmsal.add(cms);
                 }
@@ -225,9 +234,13 @@ public class CheckersBoard implements Board{
                 possibilities = null;
                 if(moved.player().direction() == Direction.UP && xy[1] == 0){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
+                    jf.repaint();
+                    return (byte) (0-p.key);
                 }
                 if(moved.player().direction() == Direction.DOWN && xy[1] == size-1){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
+                    jf.repaint();
+                    return (byte) (0-p.key);
                 }
                 jf.repaint();
                 return p.key;

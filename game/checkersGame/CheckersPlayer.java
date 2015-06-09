@@ -17,7 +17,7 @@ import java.awt.Color;
 public class CheckersPlayer implements Player{
 
     private String name;
-    private CheckersAI controller;
+    private AI controller;
     private Color color;
     private Direction direction;
     
@@ -28,12 +28,12 @@ public class CheckersPlayer implements Player{
         this.direction = direction;
     }
     
-    public CheckersAI controller() {
+    public AI controller() {
         return controller;
     }
     
     public void controller(AI controller) {
-        this.controller = (CheckersAI) controller;
+        this.controller = controller;
     }
 
     public Color color() {

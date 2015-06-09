@@ -5,7 +5,6 @@
  */
 package game.checkersGame;
 
-import game.AI;
 import game.Board;
 import game.Direction;
 import game.Game;
@@ -51,7 +50,9 @@ public class CheckersGame implements Game{
         activated = false;
         if(players[cPlayer].controller() != null){
             byte acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
-            board = players[cPlayer].controller().move(board);
+            MoveState ms = players[cPlayer].controller().move(board);
+            board = ms.board;
+            checkersOnBoard[acPlayer] -= ms.ownValue;
             cPlayer = acPlayer;
         }
         board.check(players[cPlayer]);
@@ -90,16 +91,19 @@ public class CheckersGame implements Game{
                 System.err.println(exc);
                 return null;
             }
-            System.err.println(captured);
             activated = false;
-            checkersOnBoard[acPlayer] -= captured;
+            checkersOnBoard[acPlayer] -= Math.abs(captured);
             if(checkersOnBoard[acPlayer] == 0){
                 return players[cPlayer].name();
             }else{
                 cPlayer = acPlayer;
                 if(players[cPlayer].controller() != null){
-                    board = players[cPlayer].controller().move(board);
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
+                    MoveState ms = players[cPlayer].controller().move(board);
+                    board = ms.board;
+                    checkersOnBoard[acPlayer] -= ms.ownValue;
+                    if(checkersOnBoard[acPlayer] == 0)
+                        return players[cPlayer].name();
                     cPlayer = acPlayer;
                 }
                 board.check(players[cPlayer]);

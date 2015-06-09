@@ -5,10 +5,12 @@
  */
 package game;
 
+import game.checkersGame.MoveState;
+
 /**
  *
  * @author JWMD
  */
 public interface AI {
-    public Board move(Board start);
+    public MoveState move(Board start);
 }

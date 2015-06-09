@@ -21,6 +21,9 @@ public class GUI extends JFrame{
     private final short x=500, y=500;
     private Game game;
     private final JFrame jf = this;
+    private JMenuBar jmb;
+    private JMenu jm, ng;
+    private JMenuItem nsg, nmg, lv; 
     private MouseListener ml = new MouseListener(){
 
         public void mouseClicked(MouseEvent e) {
@@ -47,7 +50,7 @@ public class GUI extends JFrame{
     public GUI(){
         game = new CheckersGame(false, jf);
         setSize(x, y);
-        setTitle("The best checkers ever v0.000001");
+        setTitle("Checkers v.1");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setVisible(true);
         addMouseListener(ml);

@@ -25,8 +25,9 @@ public class CheckersAI implements AI{
     private Player opponent;
     private Tree<MoveState> tree;
     private Tree<MoveState>.Element root;
-    private Board result;
-    private final byte maxDepth = 3;
+    private MoveState result;
+    private final byte maxDepth = 4;
+    public static final byte kingsBonus = 1;
     
     public CheckersAI(Board board, Player player, Player opponent){
         this.board = board;
@@ -36,7 +37,9 @@ public class CheckersAI implements AI{
     }
     
     private void postOrder(Tree<MoveState>.Element ancestor, boolean max){
-        byte extremum = 0;
+        byte extremum = ancestor.value().value;
+        if(ancestor.kids().size() > 0)
+            extremum = ancestor.kids().get(0).value().value;
         for(Tree<MoveState>.Element el : ancestor.kids()){
             postOrder(el, !max);
             if(max)
@@ -44,41 +47,41 @@ public class CheckersAI implements AI{
             else
                 extremum = el.value().value < extremum ? el.value().value : extremum;
         }
-        if(!ancestor.kids().isEmpty())
-            ancestor.value().value = extremum;
+        ancestor.value().value = extremum;
     }
     
     private void simulate(Tree<MoveState>.Element ancestor, byte depth, Player pPlayer){
-        if(result != null) return;
-        if(depth == 0){
-            postOrder(root, true);
-            for(Tree<MoveState>.Element e : root.kids()){
-                if(e.value().value == root.value().value){
-                    result = e.value().board;
-                    break;
-                }
-            }
-        }
+        byte rdepth = depth;
+        if(result != null || depth == 0) return;
         try{
             ArrayList<MoveState> cmsal = ancestor.value().board.simulate(pPlayer);
             for(MoveState ms : cmsal){
                 byte weight = (byte) ((pPlayer == player ? (byte) 1 : (byte) -1)*ms.value + ancestor.value().value);
                 ms.value = weight;
+                //new Simulation(ms, rdepth);
                 Tree<MoveState>.Element mse = tree.insert(ancestor, ms);
                 Player ppl = pPlayer == player ? opponent : player;
-                simulate(mse, --depth, ppl);
+                simulate(mse, (byte) (depth-1), ppl);
             }
         }catch(CheckerNotFoundException | WrongMoveException | DisactivatedException exc){
             System.err.println(exc);
         }
     }
     
-    public Board move(Board start){
+    public MoveState move(Board start){
         board = start;
         tree = new Tree<>(new MoveState( (byte) 0, new CheckersBoard((CheckersBoard) board)));
         root = tree.root();
         result = null;
         simulate(root, maxDepth, player);
+        postOrder(root, true);
+        System.err.println(tree);
+        for(Tree<MoveState>.Element e : root.kids()){
+            if(e.value().value == root.value().value){
+                result = e.value();
+                break;
+            }
+        }
         return result;
     }
     
