@@ -32,6 +32,7 @@ public class CheckersBoard implements Board{
     private ArrayList<Possibility> possibilities;
     private ArrayList<byte[]> activationPossibilities;
     private final byte size = 8;
+    private MoveState multipleState;
     
     public CheckersBoard(JFrame jf, Player player1, Player player2){
         checkers = new Checker[size][size];
@@ -39,6 +40,7 @@ public class CheckersBoard implements Board{
         factor = 0.8f;
         activated = null;
         activationPossibilities = null;
+        multipleState = null;
         for(byte i = 0; i < 3; i++){
             for(byte j = 0; j < size; j++){
                 if((i%2==0 && j%2==1) || (i%2==1 && j%2==0)){
@@ -73,6 +75,7 @@ public class CheckersBoard implements Board{
         }
         activationPossibilities = cb.activationPossibilities;
         possibilities = cb.possibilities;
+        multipleState = cb.multipleState;
         for(byte i = 0; i < cb.size; i++){
             for(byte j = 0; j < cb.size; j++){
                 checkers[i][j] = cb.checkers[i][j];
@@ -80,18 +83,19 @@ public class CheckersBoard implements Board{
         }
     }
     
-    private void multipleSimulation(ArrayList<MoveState> cmsal, byte fResult) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
-        byte ks = 0;
+    private void multipleSimulation(ArrayList<MoveState> cmsal, MoveState ms) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
+        MoveState cms = null;
         for(Possibility pos : possibilities){
                 CheckersBoard copy = new CheckersBoard(this);
                 try{
-                    ks = copy.move(pos.value);
+                    cms = copy.move(pos.value);
+                    byte value = (byte) (cms.value + ms.value);
+                    cms.value = value;
+                    byte ownValue = (byte) (cms.ownValue + ms.ownValue);
+                    cms.ownValue = ownValue;
                 }catch(MultipleMoveException exc){
-                    copy.multipleSimulation(cmsal, ++fResult);
+                    copy.multipleSimulation(cmsal, cms);
                 }
-                if(ks < 0)
-                    fResult += CheckersAI.kingsBonus;
-                MoveState cms = new MoveState(++fResult, copy);
                 cmsal.add(cms);
             }
     }
@@ -105,19 +109,16 @@ public class CheckersBoard implements Board{
                 CheckersBoard copy = new CheckersBoard(this);
                 copy.check(player);
                 copy.activate(ap, player);
-                byte result = 0;
+                MoveState result = null;
                 boolean added = false;
                 try{
                     result = copy.move(pos.value);
                 }catch(MultipleMoveException exc){
-                    copy.multipleSimulation(cmsal, (byte) 1);
+                    copy.multipleSimulation(cmsal, result);
                     added = true;
                 }
                 if(!added){
-                    if(result < 0)
-                        result = (byte) (-result+CheckersAI.kingsBonus);
-                    MoveState cms = new MoveState(result, copy);
-                    cmsal.add(cms);
+                    cmsal.add(result);
                 }
             }
         }
@@ -195,7 +196,7 @@ public class CheckersBoard implements Board{
         return ret;
     }
     
-    public byte move(byte[] xy) throws WrongMoveException, DisactivatedException, MultipleMoveException{
+    public MoveState move(byte[] xy) throws WrongMoveException, DisactivatedException, MultipleMoveException{
         if(activated != null){
             if(xy[0] == activated[0] && xy[1] == activated[1]){
                 activated = null;
@@ -206,12 +207,14 @@ public class CheckersBoard implements Board{
         }
         for(Possibility p : possibilities){
             if(p.value[0] == xy[0] && p.value[1] == xy[1]){
+                byte value = p.key;
                 Checker moved = checkers[activated[0]][activated[1]];
                 checkers[activated[0]][activated[1]] = null;
                 checkers[xy[0]][xy[1]] = moved;
                 if(p.key != 0){
                     byte x = (byte) (xy[0] - Math.abs(xy[0] - activated[0])/(xy[0] - activated[0]));
                     byte y = (byte) (xy[1] - Math.abs(xy[1] - activated[1])/(xy[1] - activated[1]));
+                    if(checkers[x][y].getClass() == King.class) value += CheckersAI.kingsBonus;
                     checkers[x][y] = null;
                     activated = null;
                     possibilities = null;
@@ -225,6 +228,12 @@ public class CheckersBoard implements Board{
                         if(!possibilities.isEmpty()){
                             if(possibilities.get(0).key != 0){
                                 jf.repaint();
+                                if(multipleState == null)
+                                    multipleState = new MoveState(value, (byte) 0, this);
+                                else{
+                                    byte v = (byte) (multipleState.value + value);
+                                    multipleState.value = v;
+                                }
                                 throw new MultipleMoveException();
                             }
                         }
@@ -235,15 +244,32 @@ public class CheckersBoard implements Board{
                 if(moved.player().direction() == Direction.UP && xy[1] == 0){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
-                    return (byte) (0-p.key);
+                    if(multipleState != null){
+                        multipleState.ownValue = CheckersAI.kingsBonus;
+                        MoveState tr = multipleState;
+                        multipleState = null;
+                        return tr;
+                    }else
+                        return new MoveState(value, CheckersAI.kingsBonus, this);
                 }
                 if(moved.player().direction() == Direction.DOWN && xy[1] == size-1){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
-                    return (byte) (0-p.key);
+                    if(multipleState != null){
+                        multipleState.ownValue = CheckersAI.kingsBonus;
+                        MoveState tr = multipleState;
+                        multipleState = null;
+                        return tr;
+                    }else
+                        return new MoveState(value, CheckersAI.kingsBonus, this);
                 }
                 jf.repaint();
-                return p.key;
+                if(multipleState != null){
+                        MoveState tr = multipleState;
+                        multipleState = null;
+                        return tr;
+                    }else
+                        return new MoveState(value, (byte) 0, this);
             }
         }
         throw new WrongMoveException();

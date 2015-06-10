@@ -77,9 +77,9 @@ public class CheckersGame implements Game{
             return null;
         }else{
             byte acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
-            byte captured = 0;
+            MoveState afterMove;
             try{
-                captured = board.move(xy);
+                afterMove = board.move(xy);
             }catch(WrongMoveException exc){
                 System.err.println(exc);
                 return null;
@@ -87,12 +87,13 @@ public class CheckersGame implements Game{
                 activated = false;
                 return null;
             }catch(MultipleMoveException exc){
-                checkersOnBoard[acPlayer]--;
                 System.err.println(exc);
                 return null;
             }
             activated = false;
-            checkersOnBoard[acPlayer] -= Math.abs(captured);
+            checkersOnBoard[acPlayer] -= afterMove.value;
+            checkersOnBoard[cPlayer] += afterMove.ownValue;
+            System.err.println("\t" + checkersOnBoard[0] + " : " + checkersOnBoard[1]);
             if(checkersOnBoard[acPlayer] == 0){
                 return players[cPlayer].name();
             }else{
@@ -101,7 +102,8 @@ public class CheckersGame implements Game{
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
                     MoveState ms = players[cPlayer].controller().move(board);
                     board = ms.board;
-                    checkersOnBoard[acPlayer] -= ms.ownValue;
+                    checkersOnBoard[acPlayer] -= Math.abs(ms.ownValue);
+                    System.err.println("\t" + checkersOnBoard[0] + " : " + checkersOnBoard[1]);
                     if(checkersOnBoard[acPlayer] == 0)
                         return players[cPlayer].name();
                     cPlayer = acPlayer;

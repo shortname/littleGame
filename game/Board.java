@@ -5,6 +5,7 @@
  */
 package game;
 
+import game.checkersGame.MoveState;
 import game.exceptions.CheckerNotFoundException;
 import game.exceptions.DisactivatedException;
 import game.exceptions.FieldNotFoundException;
@@ -19,7 +20,7 @@ import java.awt.Graphics2D;
 public interface Board {
     public void paint(Graphics2D g2d);
     public void activate(byte[] xy, Player player) throws CheckerNotFoundException;
-    public byte move(byte[] xy) throws WrongMoveException, DisactivatedException, MultipleMoveException;
+    public MoveState move(byte[] xy) throws WrongMoveException, DisactivatedException, MultipleMoveException;
     public boolean check(Player player);
     public byte[] onBoard(float xp, float yp) throws FieldNotFoundException;
 }
