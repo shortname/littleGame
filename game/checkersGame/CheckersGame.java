@@ -102,7 +102,8 @@ public class CheckersGame implements Game{
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
                     MoveState ms = players[cPlayer].controller().move(board);
                     board = ms.board;
-                    checkersOnBoard[acPlayer] -= Math.abs(ms.ownValue);
+                    checkersOnBoard[acPlayer] -= ms.value;
+                    checkersOnBoard[cPlayer] += ms.ownValue;
                     System.err.println("\t" + checkersOnBoard[0] + " : " + checkersOnBoard[1]);
                     if(checkersOnBoard[acPlayer] == 0)
                         return players[cPlayer].name();

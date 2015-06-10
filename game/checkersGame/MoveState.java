@@ -21,6 +21,13 @@ public class MoveState {
         this.board = board;
         simValue = (byte) 0;
     }
+    
+    public MoveState(MoveState ms){
+        value = ms.value;
+        ownValue = ms.ownValue;
+        board = ms.board;
+        simValue = ms.simValue;
+    }
         
     public String toString(){
         return "" + value; 

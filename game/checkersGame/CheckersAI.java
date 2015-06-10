@@ -50,7 +50,7 @@ public class CheckersAI implements AI{
     }
     
     private void simulate(Tree<MoveState>.Element ancestor, byte depth, Player pPlayer){
-        byte rdepth = depth;
+        //byte rdepth = depth;
         if(result != null || depth == 0) return;
         try{
             ArrayList<MoveState> cmsal = ancestor.value().board.simulate(pPlayer);

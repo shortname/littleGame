@@ -75,7 +75,12 @@ public class CheckersBoard implements Board{
         }
         activationPossibilities = cb.activationPossibilities;
         possibilities = cb.possibilities;
-        multipleState = cb.multipleState;
+        if(cb.multipleState == null)
+            multipleState = null;
+        else{
+            multipleState = new MoveState(cb.multipleState.value, cb.multipleState.ownValue, this);
+            multipleState.simValue = cb.multipleState.simValue;
+        }
         for(byte i = 0; i < cb.size; i++){
             for(byte j = 0; j < cb.size; j++){
                 checkers[i][j] = cb.checkers[i][j];
@@ -86,18 +91,15 @@ public class CheckersBoard implements Board{
     private void multipleSimulation(ArrayList<MoveState> cmsal, MoveState ms) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
         MoveState cms = null;
         for(Possibility pos : possibilities){
-                CheckersBoard copy = new CheckersBoard(this);
-                try{
-                    cms = copy.move(pos.value);
-                    byte value = (byte) (cms.value + ms.value);
-                    cms.value = value;
-                    byte ownValue = (byte) (cms.ownValue + ms.ownValue);
-                    cms.ownValue = ownValue;
-                }catch(MultipleMoveException exc){
-                    copy.multipleSimulation(cmsal, cms);
-                }
-                cmsal.add(cms);
+            CheckersBoard copy = new CheckersBoard(this);
+            try{
+                cms = copy.move(pos.value);
+            }catch(MultipleMoveException exc){
+                copy.multipleSimulation(cmsal, copy.multipleState);
+                return;
             }
+            cmsal.add(cms);
+        }
     }
     
     public ArrayList<MoveState> simulate(Player player) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
@@ -114,7 +116,8 @@ public class CheckersBoard implements Board{
                 try{
                     result = copy.move(pos.value);
                 }catch(MultipleMoveException exc){
-                    copy.multipleSimulation(cmsal, result);
+                    System.err.println("\t\t" + copy.multipleState.value + "\t" + copy.multipleState.ownValue);
+                    copy.multipleSimulation(cmsal, copy.multipleState);
                     added = true;
                 }
                 if(!added){
@@ -245,23 +248,23 @@ public class CheckersBoard implements Board{
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
                     if(multipleState != null){
-                        multipleState.ownValue = CheckersAI.kingsBonus;
+                        multipleState.ownValue = CheckersAI.kingsBonus-1;
                         MoveState tr = multipleState;
                         multipleState = null;
                         return tr;
                     }else
-                        return new MoveState(value, CheckersAI.kingsBonus, this);
+                        return new MoveState(value, (byte) (CheckersAI.kingsBonus-1), this);
                 }
                 if(moved.player().direction() == Direction.DOWN && xy[1] == size-1){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
                     if(multipleState != null){
-                        multipleState.ownValue = CheckersAI.kingsBonus;
+                        multipleState.ownValue = CheckersAI.kingsBonus-1;
                         MoveState tr = multipleState;
                         multipleState = null;
                         return tr;
                     }else
-                        return new MoveState(value, CheckersAI.kingsBonus, this);
+                        return new MoveState(value, (byte) (CheckersAI.kingsBonus-1), this);
                 }
                 jf.repaint();
                 if(multipleState != null){
