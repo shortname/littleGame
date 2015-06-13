@@ -88,16 +88,17 @@ public class CheckersBoard implements Board{
         }
     }
     
-    private void multipleSimulation(ArrayList<MoveState> cmsal, MoveState ms) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
+    private void multipleSimulation(ArrayList<MoveState> cmsal) throws CheckerNotFoundException, WrongMoveException, DisactivatedException{
         MoveState cms = null;
         for(Possibility pos : possibilities){
             CheckersBoard copy = new CheckersBoard(this);
             try{
                 cms = copy.move(pos.value);
             }catch(MultipleMoveException exc){
-                copy.multipleSimulation(cmsal, copy.multipleState);
+                copy.multipleSimulation(cmsal);
                 return;
             }
+            System.err.println("-> " + cms.value);
             cmsal.add(cms);
         }
     }
@@ -117,7 +118,7 @@ public class CheckersBoard implements Board{
                     result = copy.move(pos.value);
                 }catch(MultipleMoveException exc){
                     System.err.println("\t\t" + copy.multipleState.value + "\t" + copy.multipleState.ownValue);
-                    copy.multipleSimulation(cmsal, copy.multipleState);
+                    copy.multipleSimulation(cmsal);
                     added = true;
                 }
                 if(!added){
@@ -217,7 +218,7 @@ public class CheckersBoard implements Board{
                 if(p.key != 0){
                     byte x = (byte) (xy[0] - Math.abs(xy[0] - activated[0])/(xy[0] - activated[0]));
                     byte y = (byte) (xy[1] - Math.abs(xy[1] - activated[1])/(xy[1] - activated[1]));
-                    if(checkers[x][y].getClass() == King.class) value += CheckersAI.kingsBonus;
+                    if(checkers[x][y].getClass() == King.class) value = CheckersAI.kingsBonus;
                     checkers[x][y] = null;
                     activated = null;
                     possibilities = null;
@@ -231,9 +232,9 @@ public class CheckersBoard implements Board{
                         if(!possibilities.isEmpty()){
                             if(possibilities.get(0).key != 0){
                                 jf.repaint();
-                                if(multipleState == null)
+                                if(multipleState == null){
                                     multipleState = new MoveState(value, (byte) 0, this);
-                                else{
+                                }else{
                                     byte v = (byte) (multipleState.value + value);
                                     multipleState.value = v;
                                 }
@@ -242,24 +243,29 @@ public class CheckersBoard implements Board{
                         }
                     }
                 }
+                
                 activated = null;
                 possibilities = null;
-                if(moved.player().direction() == Direction.UP && xy[1] == 0){
+                if(moved.player().direction() == Direction.UP && xy[1] == 0  && moved.getClass() != King.class){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
                     if(multipleState != null){
                         multipleState.ownValue = CheckersAI.kingsBonus-1;
+                        byte v = (byte) (multipleState.value + value);
+                        multipleState.value = v;    
                         MoveState tr = multipleState;
                         multipleState = null;
                         return tr;
                     }else
                         return new MoveState(value, (byte) (CheckersAI.kingsBonus-1), this);
                 }
-                if(moved.player().direction() == Direction.DOWN && xy[1] == size-1){
+                if(moved.player().direction() == Direction.DOWN && xy[1] == size-1 && moved.getClass() != King.class){
                     checkers[xy[0]][xy[1]] = new King(moved.player(), jf);
                     jf.repaint();
                     if(multipleState != null){
                         multipleState.ownValue = CheckersAI.kingsBonus-1;
+                        byte v = (byte) (multipleState.value + value);
+                        multipleState.value = v;  
                         MoveState tr = multipleState;
                         multipleState = null;
                         return tr;
@@ -268,6 +274,8 @@ public class CheckersBoard implements Board{
                 }
                 jf.repaint();
                 if(multipleState != null){
+                        byte v = (byte) (multipleState.value + value);
+                        multipleState.value = v;  
                         MoveState tr = multipleState;
                         multipleState = null;
                         return tr;

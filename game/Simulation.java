@@ -5,6 +5,7 @@
  */
 package game;
 
+import game.checkersGame.CheckersBoard;
 import game.checkersGame.MoveState;
 import java.awt.Color;
 import java.awt.Graphics;
@@ -24,9 +25,13 @@ public class Simulation extends JFrame{
     public Simulation(MoveState ms, byte depth){
         this.board = ms.board;
         setSize(500, 500);
-        setTitle("Sim " + depth + " " + ms.value);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setTitle("Ostatni ruch");
         setVisible(true);
+    }
+    
+    public void show(CheckersBoard cb){
+        board = cb;
+        repaint();
     }
     
     public void paint(Graphics g){

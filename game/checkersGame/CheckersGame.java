@@ -9,6 +9,7 @@ import game.Board;
 import game.Direction;
 import game.Game;
 import game.Player;
+import game.Simulation;
 import game.exceptions.CheckerNotFoundException;
 import game.exceptions.DisactivatedException;
 import game.exceptions.FieldNotFoundException;
@@ -25,6 +26,8 @@ import javax.swing.JFrame;
 public class CheckersGame implements Game{
 
     private Board board;
+    private Board lastBoard;
+    private Simulation sim;
     private final Player[] players;
     private byte cPlayer;
     private byte[] checkersOnBoard;
@@ -56,6 +59,7 @@ public class CheckersGame implements Game{
             cPlayer = acPlayer;
         }
         board.check(players[cPlayer]);
+        sim = new Simulation(new MoveState((byte) 0, (byte) (0), (CheckersBoard) board), (byte) 0);
     }
     
     public String interpret(float x, float y) {
@@ -101,12 +105,16 @@ public class CheckersGame implements Game{
                 if(players[cPlayer].controller() != null){
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
                     MoveState ms = players[cPlayer].controller().move(board);
+                    lastBoard = board;
+                    sim.show((CheckersBoard) board);
                     board = ms.board;
                     checkersOnBoard[acPlayer] -= ms.value;
                     checkersOnBoard[cPlayer] += ms.ownValue;
                     System.err.println("\t" + checkersOnBoard[0] + " : " + checkersOnBoard[1]);
                     if(checkersOnBoard[acPlayer] == 0)
                         return players[cPlayer].name();
+                    if(board == null)
+                        return "No one";
                     cPlayer = acPlayer;
                 }
                 board.check(players[cPlayer]);

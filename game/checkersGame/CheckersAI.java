@@ -26,8 +26,8 @@ public class CheckersAI implements AI{
     private Tree<MoveState> tree;
     private Tree<MoveState>.Element root;
     private MoveState result;
-    private final byte maxDepth = 2;
-    public static final byte kingsBonus = 10;
+    private final byte maxDepth = 4;
+    public static final byte kingsBonus = 2;
     
     public CheckersAI(Board board, Player player, Player opponent){
         this.board = board;
@@ -79,6 +79,7 @@ public class CheckersAI implements AI{
         for(Tree<MoveState>.Element e : root.kids()){
             if(e.value().simValue == root.value().simValue){
                 result = e.value();
+                System.err.println("<- " + result.value);
                 break;
             }
         }
