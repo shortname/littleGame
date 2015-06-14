@@ -55,11 +55,9 @@ public class CheckersBoard implements Board{
                 }
             }
         }
-        /*put(new Man(player2, jf), (byte) 4, (byte) 3);
-        put(new Man(player1, jf), (byte) 0, (byte) 1);
-        put(new Man(player1, jf), (byte) 5, (byte) 6);
-        put(new Man(player1, jf), (byte) 5, (byte) 4);
-        put(new Man(player1, jf), (byte) 3, (byte) 2);*/
+        /*put(new Man(player1, jf), (byte) 0, (byte) 1);
+        put(new Man(player2, jf), (byte) 1, (byte) 0);
+        put(new Man(player2, jf), (byte) 5, (byte) 6);*/
     }
     
     public CheckersBoard(CheckersBoard cb){

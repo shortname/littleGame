@@ -13,6 +13,7 @@ import game.exceptions.DisactivatedException;
 import game.exceptions.WrongMoveException;
 import game.useful.Tree;
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  *
@@ -72,18 +73,22 @@ public class CheckersAI implements AI{
         board = start;
         tree = new Tree<>(new MoveState( (byte) 0, (byte) 0, new CheckersBoard((CheckersBoard) board)));
         root = tree.root();
-        result = null;
         simulate(root, maxDepth, player);
         postOrder(root, true);
         System.err.println(tree);
+        Random rand = new Random();
+        ArrayList<MoveState> toChoose = new ArrayList<>();
         for(Tree<MoveState>.Element e : root.kids()){
             if(e.value().simValue == root.value().simValue){
-                result = e.value();
-                System.err.println("<- " + result.value);
-                break;
+                toChoose.add(e.value());
             }
         }
-        return result;
+        if(toChoose.isEmpty())
+            return null;
+        else if(toChoose.size() == 1)
+            return toChoose.get(0);
+        else
+            return toChoose.get(rand.nextInt(toChoose.size()));
     }
     
 }

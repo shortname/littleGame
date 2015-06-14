@@ -36,16 +36,16 @@ public class CheckersGame implements Game{
     public CheckersGame(boolean p1b, JFrame jf){
         players = new Player[2];
         if(p1b){
-            players[0] = new CheckersPlayer(Color.BLACK, "Player1", Direction.DOWN);
-            players[1] = new CheckersPlayer(Color.WHITE, "Player2", Direction.UP);
+            players[0] = new CheckersPlayer(Color.BLACK, "The Blacks", Direction.DOWN);
+            players[1] = new CheckersPlayer(Color.WHITE, "The Whites", Direction.UP);
             cPlayer = 1;
         }else{
-            players[1] = new CheckersPlayer(Color.BLACK, "Player1", Direction.UP);
-            players[0] = new CheckersPlayer(Color.WHITE, "Player2", Direction.DOWN);
+            players[1] = new CheckersPlayer(Color.BLACK, "The Withes", Direction.UP);
+            players[0] = new CheckersPlayer(Color.WHITE, "The Blacks", Direction.DOWN);
             cPlayer = 0;
         }
         board = new CheckersBoard(jf, players[0], players[1]);
-        players[1].controller(new CheckersAI(board, players[1], players[0]));
+        players[0].controller(new CheckersAI(board, players[0], players[1]));
         //players[0].controller(new CheckersAI(board, players[0], players[1]));
         checkersOnBoard = new byte[2];
         checkersOnBoard[0] = 12;
@@ -54,12 +54,15 @@ public class CheckersGame implements Game{
         if(players[cPlayer].controller() != null){
             byte acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
             MoveState ms = players[cPlayer].controller().move(board);
+            if(ms == null)
+                System.exit(-1);
             board = ms.board;
             checkersOnBoard[acPlayer] -= ms.ownValue;
             cPlayer = acPlayer;
         }
-        board.check(players[cPlayer]);
-        sim = new Simulation(new MoveState((byte) 0, (byte) (0), (CheckersBoard) board), (byte) 0);
+        if(!board.check(players[cPlayer]))
+            System.exit(-2);
+        sim = new Simulation(board);
     }
     
     public String interpret(float x, float y) {
@@ -105,6 +108,8 @@ public class CheckersGame implements Game{
                 if(players[cPlayer].controller() != null){
                     acPlayer = (byte) (cPlayer == 0 ? 1 : 0);
                     MoveState ms = players[cPlayer].controller().move(board);
+                    if(ms == null)
+                        return "No one";
                     lastBoard = board;
                     sim.show((CheckersBoard) board);
                     board = ms.board;
@@ -113,11 +118,10 @@ public class CheckersGame implements Game{
                     System.err.println("\t" + checkersOnBoard[0] + " : " + checkersOnBoard[1]);
                     if(checkersOnBoard[acPlayer] == 0)
                         return players[cPlayer].name();
-                    if(board == null)
-                        return "No one";
                     cPlayer = acPlayer;
                 }
-                board.check(players[cPlayer]);
+                if(!board.check(players[cPlayer]))
+                    return "No one";
                 return null;
             }
         }

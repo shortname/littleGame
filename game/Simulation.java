@@ -22,14 +22,14 @@ public class Simulation extends JFrame{
     
     private Board board;
     
-    public Simulation(MoveState ms, byte depth){
-        this.board = ms.board;
+    public Simulation(Board board){
+        this.board = board;
         setSize(500, 500);
-        setTitle("Ostatni ruch");
+        setTitle("Last move");
         setVisible(true);
     }
     
-    public void show(CheckersBoard cb){
+    public void show(Board cb){
         board = cb;
         repaint();
     }

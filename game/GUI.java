@@ -29,7 +29,7 @@ public class GUI extends JFrame{
         public void mouseClicked(MouseEvent e) {
             String name = game.interpret(e.getX(), e.getY());
             if(name != null){
-                JOptionPane.showMessageDialog(jf, name + "has won!", "Game over", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(jf, name + " has won!", "Game over", JOptionPane.INFORMATION_MESSAGE);
             }
         }
 
@@ -48,7 +48,7 @@ public class GUI extends JFrame{
     };
     
     public GUI(){
-        game = new CheckersGame(false, jf);
+        game = new CheckersGame(true, jf);
         setSize(x, y);
         setTitle("Checkers v.1");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
